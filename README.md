@@ -6,7 +6,7 @@
 
 ** THIS IS A FORK OF https://github.com/fhddev/adohope **
 
-This version adds the option to convert HEIC to JPG, and a small fix with duplicate filenames.
+This version adds the option to convert HEIC to JPG, and a small fix with duplicate filenames, also added a status bar to monitor progress when transferring photos.
 
 
 Adohope is a free Apple Backup Extractor. It can extract data from iPhone backup, iPad backup and iPod backup.
