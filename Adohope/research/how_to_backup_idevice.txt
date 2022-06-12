@@ -1,0 +1,29 @@
+#############################################################################
+####################### How to backup iPhone, iPad or iPod ? ################
+#############################################################################
+
+## TITLE: How to backup iPhone ?
+
+	First of all you have to download iTunes. Then, backup your iPhone 
+in your computer. Make sure the backup is not encrypted. If the checkbox 
+for (Make backup encrypted) is checked, then you have to enter the backup 
+password you entered before. If you don't remember the password, do the 
+following:
+	1- Unplug your iPhone.
+	2- Go to settings > General > Reset > Reset All Settings.
+
+That will reset all your iPhone settings BUT it will remove the password 
+for the encrypted backup. Now, plug your iPhone in the computer and do a 
+backup on your computer.
+
++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+## TITLE: Where is backup files location ?
+
+	After the backup is finished. You can find backup files stored in 
+the default backup location, which is:
+	- In Windows : (C:\Users\{your_username}\AppData\Roaming\Apple Computer\MobileSync\Backup).
+	- In Mac : ?
+	- In Linuc : ?
+
++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++

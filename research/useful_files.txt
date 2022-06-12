@@ -1,0 +1,106 @@
+Media/Recordings/Recordings.db
+Library/SMS/sms.db
+Library/Safari/Bookmarks.db
+Library/Accounts/Accounts3.sqlite 
+Library/AddressBook/AddressBook.sqlitedb
+{
+	table: ABPerson
+	tbale: ABMultiValue (record_id = ROWID)
+}
+ABMultiValue:
+If phone number is ringing even the phone is silent then, there will be two records,
+first record contains the following:
+property = 16
+identifier = -4
+value = YES
+
+second record has the normal information:
+property = 3
+identifer = 0
+value = the phone number or email
+
+==============
+property:
+Ringtone = 16 | value = (Emergency Bypass On = YES | Emergency Bypass Off = NO)
+
+Phone = 3 | value = phone number
+
+Home | Email = 4 | value = email
+
+OR
+
+Property refer to:
+3 = value is phone number
+4 = value is email (even if the title is home or email)
+16 = value is YES or NO
+
+-----------------------------------------
+Library/Calendar/Calendar.sqlitedb
+Media/PhotoData/Photos.sqlite
+
+{Pictures + Videos + Voice Notes + Contacts + Messages + Safari Bookmark + Accounts}
+
+-----------
+Code Snippet:
+
+To calculate the time for durection use:
+https://stackoverflow.com/questions/8819197/convert-minutes-to-full-time-c-sharp
+-----------
+
+## Messages
+
+- Message Pined?
+- Message Muted?
+
+How to read messages ?
+There are four tables that you should read from, if you want to list all messages
+from who and the date like in iPhone, follow these steps:
+	> Read all (chat table) and get the information you need from there.
+	> Read (chat_handle_join table) to get the handle ROWID.
+	> Read all information you want about the receiver from (handle table).
+If you want to list the messages in the chat, then follow these steps:
+	> Get chat ROWID.
+	> Read (chat_message_join table) to get messages ROWIDs.
+	> Read (message table) to get messages and other useful information.
+
+-----
+
+
+There are three tables we need to look at them.
+: chat 
+	> ROWID
+	> chat_identifier (Replace it with the handle table)
+	> Service name (iMessage OR SMS)
+	> account_login (x)
+	Account login field stores the number that the message sent to (your phone number) OR the email if you are usign iMessage.
+	If message received via SMS then it account_login will hold your phone number with a prefix (P:+966XXXXXXXXX). And, if the 
+	received message is received via iMessage then, the account_login will hold the email with this format (E:your@email.com).
+	> last_read_message_timestamp
+	If 0 then it means it never been read. Else, the timestamp of the last read time.
+: message
+	> ROWID
+	> text << the message
+	> handle_id
+	> is_read (0,1)
+	> is_sent (0,1)
+	> is_empty (0,1)
+	> is_from_me (0,1)
+	> date_delivered (0, timestamp)
+	> date_read(0, timestamp)
+	> date
+: chat_message_join
+	> chat_id
+	> message_id
+	> message_date (same as `message` table in  `date` field)
+: chat_handle_join
+	> caht_id
+	> handle_id
+: handle
+	> ROWID
+	> id << number or name
+	> service (SMS or iMessage)
+	> uncanonicalized_id (Name or phone or null)
+
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+

@@ -1,0 +1,39 @@
+## Select all domains with physical files
+
+select * from files where flags=1 group by domain order by domain asc;
+
+## Select all .db and .sqlite files
+
+select * from files where flags=1 and relativePath like '%.db%' or '%.sqlite%';
+
+## Select all files in specific domain
+
+select * from files where flags=1 and domain = 'MediaDomain';
+
+## Select all videos and photos
+
+select * from files where flags=1 
+and domain='CameraRollDomain' 
+and relativePath not like '%.THM' 
+and relativePath not like '%.plist'
+and relativePath like 'Media/DCIM/%'
+order by relativePath asc;
+
+## DATE
+SELECT
+  *,
+  -- Apple appears to have incremented the creation date stamp, but grab them both
+  datetime(ZCREATIONDATE + 978307200, 'unixepoch') AS XFORMATTEDDATESTRING,
+  datetime(ZCREATIONDATE1 + 978307200, 'unixepoch') AS XFORMATTEDDATESTRING1
+  FROM ZICCLOUDSYNCINGOBJECT
+
+## Note
+
+SELECT 
+ Z_PK, ZISPASSWORDPROTECTED, ZMARKEDFORDELETION, 
+ZFILESIZE,  ZLOCATION, ZMEDIA, ZNOTE, ZATTACHMENT, ZSTATE, ZFOLDER, ZNOTEDATA, 
+ZSORTORDER, ZFOLDERTYPE, ZCREATIONDATE, ZIDENTIFIER, ZSUMMARY, ZTITLE, 
+ZFILENAME, ZSNIPPET, ZNAME, (select count(Z_PK) from ZICCLOUDSYNCINGOBJECT where ZNOTEDATA is not null) as NoteWithDataCount
+from ZICCLOUDSYNCINGOBJECT
+where ZNOTEDATA is not null;
+

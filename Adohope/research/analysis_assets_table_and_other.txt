@@ -1,0 +1,369 @@
+Live photos has an image as a thumbnail and a short video.
+
+Live photos are recorded in ManifestDb not in Photos.sqlite!
+
++
+
+For unknown reason, there is a zero byte JPG file in the backup files and recorded in Manifest.db file!
+
+
++
+
+Live photos videos are not in Photos.sqlite file, ONLY THE THUMBNAIL PHOTO!
+
+Tested in iOS 14
+
+
+IMG_3402 = 3412
+
+---------------------------
+
+Photos.sqlite database in ZASSET table:
+- If photo has faces then these fields will has values:
+	* ZFACEAREAPOINTS
+- اذا تم التقاط الصورة بالعرض, فان الطول للصورة سيكون ثابت ويمكن ايجاد القيمة في خانة ZHEIGHT anb ZWIDTH
+- ZKINDSUBTYPE contains value of 0 for the normal pictures and 2 for the live photos + the normal photos has faces on it.
+- ZPLAYBACKSTYLE contains a value of 1 for the normal photos and 3 for the live photos.
+- ZSAVEDASSETTYPE has a value of 3 for all the photos taken by the user, SO maybe it contains a different value for the screenshot and other photos types.
+- ZTHUMBNAILINDEX ??
+- ZVIDEOCPDURATIONVALUE has a value of 0 for the normal photos and a number bigger then 0 for the live photos.
+- ZADDITIONALATTRIBUTES important !!!
+- ZDAYGROUPHIGHLIGHTBEINGASSETS has a value of NULL for the normal photos and 92 for the live photos.
+- ZHIGHLIGHTBEINGASSETS has a value of 3 for the normal photos and 62 for the live photos.
+- ZMEDIAANALYSISATTRIBUTES ??
+- ZMOMENT
+- ZMEDIAGROUPUUID has a NULL value for the normal photos and UUID for the live video
+- Photos.sqlite has only VIDEOS that are taken by the user, saved videos from external sources like whatsapp are not recorded in photos.sqlite database.
+- Slo-motion videos are saved as it is, there are values saved spmewhere to do the slo-motion effat every time the user view the video!
+- ZTRASHEDSTATE (0,1)
+- ZHIDDEN
+
+=====================================
+
+Table: ZASSET
+
+LOOK FOR (highlight - video fields - adjustment)
+
+ZDERIVEDCAMERACAPTUREDEVICE ???
+ZGROUPINGSTATE ???
+ZHASADJUSTMENTS ???
+ZHIGHFRAMERATESTATE ???
+ZLOCALRESOURCESSTATE ???
+ZORIENTATION ???
+ZPLAYBACKSTYLE ???
+ZSAVEDASSETTYPE ???
+ZEXTENDEDATTRIBUTES ???
+ZLIBRARYSCOPE ???
+ZMASTER ???
+ZSEARCHDATA ???
+ZSOURCEASSETFORDUPLICATION ???
+ZADDEDDATE
+ZDATECREATED ???
+ZDURATION ???
+ZMODIFICATIONDATE ???
+ZTRASHEDDATE ???
+ZGROUPINGUUID ???
+ZLOCATIONDATA
+
+Table: ZADDITIONALASSETATTRIBUTES
+
+ZALLOWEDFORANALYSIS ??
+ZCAMERACAPTUREDEVICE ??
+ZIMPORTEDBY ???
+ZORIGINALFILESIZE ???
+ZORIGINALHEIGHT ???
+ZORIGINALORIENTATION ???
+ZPLAYCOUNT ???
+ZVIEWCOUNT ???
+ZCREATORBUNDLEID ???
+ZORIGINALFILENAME ???
+ZPUBLICGLOBALUUID ???
+ZOBJECTSALIENCYRECTSDATA ???
+
+
+ZKINDSUBTYPE 0=Captured pictures and videos, 2=LivePhoto, 101=SloMo, 102=time-lapse, 10=Screenshot, 103=screenrecording, 
+Library:
+	- All Photos
+	- Camera (Photos and Videos) ZKINDSUBTYPE=0
+	- Favorites ZFAVORITE
+	- Hidden (ZHIDDEN)
+	- Recently Deleted (ZTRASHEDSTATE)
+
+Media Types:
+	- Videos (founded) ZKIND=1, ZKINDSUBTYPE=0
+	- Selfies 
+	- Live Photos ZKIND=0, ZKINDSUBTYPE=2
+	- Panoramas ZKIND=0, ZKINDSUBTYPE=1
+	- Time-lapse ZKIND=1, ZKINDSUBTYPE=102
+	- Slo-mo ZKIND=1, ZKINDSUBTYPE=101
+	- Bursts
+	- Screenshots ZKIND=0, ZKINDSUBTYPE=10
+	- Screenrecroding ZKIND=1, ZKINDSUBTYPE=103
+
+=====================================
+
+## Albums ##
+
+Tables: 
+	- ZGENERICALBUM << 41 records
+	- Z_25ALBUMLISTS << Many-to-many relation (Album + List)
+	- Z_26ASSETS << Many-to-many relation (Album + Asset)
+	- ZALBUMLIST ???
+
+Fields:
+	- ZTITLE
+
+Queries:
+	## To list all available albums ##
+	select ZTITLE from ZGENERICALBUM where ZKEYASSET is not null and ZTITLE is not null;
+
+	## To fetch albums names and their primary keys ##
+	select Z_PK, ZTITLE from ZGENERICALBUM where ZTITLE in('WhatsApp', 'Twitter');
+
+	## To fetch assets count in each album ##
+	SELECT Z_26ALBUMS, COUNT(Z_3ASSETS) FROM Z_26ASSETS GROUP BY Z_26ALBUMS;
+
+	## To fetch all albums and their assets ##
+	SELECT Z_26ALBUMS, Z_3ASSETS FROM Z_26ASSETS;
+
+	## To fetch all assets primary keys in specific album ##
+	SELECT Z_26ALBUMS, Z_3ASSETS FROM Z_26ASSETS where Z_26ALBUMS=(select Z_PK from ZGENERICALBUM where ZTITLE ='WhatsApp');
+
+	## To fetch all assets assets in specific album ##
+	select * from ZASSET where Z_PK IN(SELECT Z_3ASSETS FROM Z_26ASSETS where Z_26ALBUMS=(select Z_PK from ZGENERICALBUM where ZTITLE ='WhatsApp'));
+
+=====================================
+
+THINGS TO FIND!!!!!!
+- albums [DONE]
+- Highlights like (people and places)
+- Media types
+- Utilities (hidden - recently deleted)
+
+
+
+
+
+
+
+//////////////////////////////////////
+select 
+	Z_PK
+	, Z_ENT
+	, Z_OPT
+	, ZFACEAREAPOINTS
+	, ZKIND
+	, ZKINDSUBTYPE
+	, ZPLAYBACKSTYLE
+	, ZSAVEDASSETTYPE
+	, ZTHUMBNAILINDEX
+	, ZVIDEOCPDURATIONVALUE
+	, ZADDITIONALATTRIBUTES
+	, ZDAYGROUPHIGHLIGHTBEINGASSETS
+	, ZMEDIAANALYSISATTRIBUTES
+	, ZMOMENT
+	, ZMEDIAGROUPUUID
+	, ZDIRECTORY
+	, ZFILENAME
+	, ZORIGINALCOLORSPACE
+	, ZUNIFORMTYPEIDENTIFIER
+	, ZUUID
+	, *
+from ZASSET where 
+-- Video taken by the user
+-- Video saved from anywhere
+-- selfie
+-- live photo
+-- panoramas
+-- time-lapse
+-- slo-mo
+-- bursts
+-- screenshot
+-- screen recording
+-- recently deleted
+-- hidden << nothing!
+-- whatsapp
+-- twitter
+-- favorites << nothing!
+
+-- normal photos with faces
+ZFILENAME like 'IMG_3241%'
+or ZFILENAME like 'IMG_3242%'
+-- normal photos without faces
+or ZFILENAME like 'IMG_3251%'
+or ZFILENAME like 'IMG_3252%'
+-- Live photos
+or ZFileName like 'IMG_3402%' 
+or ZFILENAME like 'IMG_3403%';
+/////////////////////////////////////////
+
+
+
+select 
+--	Z_PK
+--	, Z_ENT
+--	, Z_OPT
+--	, ZFACEAREAPOINTS
+	 ZKIND
+	, ZKINDSUBTYPE -- 0=Captured pictures and videos, 2=LivePhoto, 101=SloMo, 102=time-lapse, 10=Screenshot, 
+	, ZPLAYBACKSTYLE
+	, ZSAVEDASSETTYPE
+	, ZTHUMBNAILINDEX
+	, ZVIDEOCPDURATIONVALUE
+	, ZADDITIONALATTRIBUTES
+	, ZDAYGROUPHIGHLIGHTBEINGASSETS
+	, ZMEDIAANALYSISATTRIBUTES
+	, ZMOMENT
+	, ZMEDIAGROUPUUID
+	, ZDIRECTORY
+	, ZFILENAME
+	, ZORIGINALCOLORSPACE
+	, ZUNIFORMTYPEIDENTIFIER
+	, ZUUID
+	, *
+from ZASSET where 
+-- normal photos with faces
+ZFILENAME like 'IMG_3241%'
+or ZFILENAME like 'IMG_3242%'
+-- normal photos without faces
+or ZFILENAME like 'IMG_3251%'
+or ZFILENAME like 'IMG_3252%'
+-- Live photos
+or ZFileName like 'IMG_3402%' 
+or ZFILENAME like 'IMG_3403%'
+-- Video taken by the user
+or ZFILENAME like 'IMG_3996%'
+-- Video saved from anywhere << Photos.sqlite has only the videos that are taken by the user!
+-- bursts
+or ZFILENAME like 'IMG_4197%' -- burst 1
+or ZFILENAME like 'IMG_4198%' -- burst 2 
+-- slo-mo
+or ZFILENAME like 'IMG_4381%'
+-- selfie
+or ZFILENAME like 'IMG_4544%'
+-- panoramas << couldn't find it
+-- time-lapse
+or ZFILENAME like 'IMG_4702%'
+-- screen recording << nothing found in both (Photos.sqlite - Manifest.db)
+-- recently deleted << search for it using trasheddate field
+-- hidden << nothing!
+-- whatsapp << we have to find it later
+-- twitter << we have to find it later
+-- favorites << nothing!
+
+-- screenshot
+or ZFILENAME like 'IMG_5003%'
+
+-- ZTHUMBNAILINDEX ??
+-- ZCOMPUTEDATTRIBUTES ??
+-- ZMEDIAANALYSISATTRIBUTES ??
+-- ZUUID
+
+
+//////////////////////////////////////////////
+
+select * from ZADDITIONALASSETATTRIBUTES where ZADDITIONALASSETATTRIBUTES.Z_PK in (
+select a.ZADDITIONALATTRIBUTES from ZASSET a where 
+-- normal photos with faces
+ZFILENAME like 'IMG_3241%'
+or ZFILENAME like 'IMG_3242%'
+-- normal photos without faces
+or ZFILENAME like 'IMG_3251%'
+or ZFILENAME like 'IMG_3252%'
+-- Live photos
+or ZFileName like 'IMG_3402%' 
+or ZFILENAME like 'IMG_3403%'
+-- Video taken by the user
+or ZFILENAME like 'IMG_3996%'
+-- Video saved from anywhere << Photos.sqlite has only the videos that are taken by the user!
+-- bursts
+or ZFILENAME like 'IMG_4197%' -- burst 1
+or ZFILENAME like 'IMG_4198%' -- burst 2 
+-- slo-mo
+or ZFILENAME like 'IMG_4381%'
+-- selfie
+or ZFILENAME like 'IMG_4544%'
+-- panoramas << couldn't find it
+-- time-lapse
+or ZFILENAME like 'IMG_4702%'
+-- screen recording << nothing found in both (Photos.sqlite - Manifest.db)
+-- recently deleted << search for it using trasheddate field
+-- hidden << nothing!
+-- whatsapp << we have to find it later
+-- twitter << we have to find it later
+-- favorites << nothing!
+
+-- screenshot
+or ZFILENAME like 'IMG_5003%'
+);
+
+-- ZORIGINALFILESIZE 
+-- ZVIEWCOUNT
+-- ZASSET
+-- ZORIGINALHEIGHT 
+-- ZORIGINALWIDTH 
+-- ZORIGINALFILENAMME
+-- ZTIMEZONENAME  << SOME ARE NULL!!
+-- ZORIGINALHASH << ??
+
+/////////////////////////////////////////////////////////
+
+ZFACECOUNT
+
+//////////////////////////////////////////////////////////
+
+## Fetch live photos count ##
+select count(Z_PK) from ZASSET where ZKIND=0 and ZKINDSUBTYPE=2;
+
+
+## Select media files in both ManifestDb and Photos.sqltie and show the differrent files count (Photos.sqlite should be attached) ##
+drop view if exists TotalMediaFilesInManifestDbAndPhotosSqlite;
+
+create temp view if not exists TotalMediaFilesInManifestDbAndPhotosSqlite
+as 
+	select
+		(select count(fileID) from files where flags = 1 and relativePath like 'Media/DCIM%') as TotalMediaFilesInManifestDb
+		, (select count(Z_PK) as TotalFiles from ZASSET)+ (select count(Z_PK) from ZASSET where ZKIND=0 and ZKINDSUBTYPE=2) as TotalMediaFilesInPhotosSqlitePlusLivePhotos;
+
+select
+	case 
+		when TotalMediaFilesInManifestDb < TotalMediaFilesInPhotosSqlitePlusLivePhotos then
+			1 --'PhotosSqlite Has More Files Than ManifestDb'
+		when TotalMediaFilesInManifestDb > TotalMediaFilesInPhotosSqlitePlusLivePhotos then
+			2 --'PhotosSqlite Has Less Files Than ManifestDb'
+		else 
+			3 --'They all the same'
+		end as ResultMessage
+from 
+	TotalMediaFilesInManifestDbAndPhotosSqlite
+
+## 2 ##
+drop view if exists TotalMediaFilesInManifestDbAndPhotosSqlite;
+
+create temp view if not exists TotalMediaFilesInManifestDbAndPhotosSqlite
+as 
+	select
+		(select count(fileID) from files where flags = 1 and relativePath like 'Media/DCIM%') as TotalMediaFilesInManifestDb
+		, (select count(Z_PK) as TotalFiles from ZASSET)+ (select count(Z_PK) from ZASSET where ZKIND=0 and ZKINDSUBTYPE=2) as TotalMediaFilesInPhotosSqlitePlusLivePhotos;
+
+select 
+	case 
+		when ResultMessage == 1 then '1'
+		when ResultMessage == 2 then
+			-- select all files where Photos.sqlite compund file name not in Manifest.db relativePath (wiht like clustre)
+			(select 'fsd')
+		when ResultMessage == 3 then '3'
+	end 
+from 
+	(select
+		case 
+			when TotalMediaFilesInManifestDb < TotalMediaFilesInPhotosSqlitePlusLivePhotos then
+				1 --'PhotosSqlite Has More Files Than ManifestDb'
+			when TotalMediaFilesInManifestDb > TotalMediaFilesInPhotosSqlitePlusLivePhotos then
+				2 --'PhotosSqlite Has Less Files Than ManifestDb'
+			else 
+				3 --'They all the same'
+			end as ResultMessage
+	from 
+		TotalMediaFilesInManifestDbAndPhotosSqlite)
+
