@@ -3,6 +3,12 @@
 ### IT IS UNDER DEVELOPMENT. USE AT YOUR RISK.
 ### TinyTool has been tested with iPhone backup, iPod backup and iPod backup, it works fine but with some problems in the extracted data.
 
+
+** THIS IS A FORK OF https://github.com/fhddev/adohope **
+
+This version adds the option to convert HEIC to JPG, and a small fix with duplicate filenames.
+
+
 Adohope is a free Apple Backup Extractor. It can extract data from iPhone backup, iPad backup and iPod backup.
 
 
